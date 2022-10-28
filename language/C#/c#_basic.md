@@ -643,3 +643,135 @@ class Program
 - 새로운 화면이 열려도 기존에 있던 화면을 조작할 수 있는 형태는 `모달리스`
 - `MDI`는 하나의 화면 내부에 여러개의 다른 화면을 띄우는 것
 - 새로운 화면을 띄웠을 때 기존의 화면을 조작할 수 없는 것은 `모달`
+
+<br>
+
+# 클래스 심화
+
+## 제네릭
+
+- 클래스 내부에서 `자료형에 별칭을 지정`하는 기능
+- 보통은 식별자로 `T`를 사용
+- `where` 키워드를 사용해서 제네릭 `타입을 제한`
+
+```c#
+class Wanted<T, U>
+{
+    where T : class //타입을 클래스로 제한
+    where U : IComparable //타입을 IComparable 또는 자식으로 제한
+}
+```
+
+<br>
+
+## 인덱서
+
+- 직접 만든 클래스에 `[]`를 사용
+
+```c#
+class Products
+{
+    public int this[int i]
+    {
+        get { return i; }
+        set { Console.WriteLine(i); }
+    }
+}
+```
+
+<br>
+
+## out 키워드
+
+- `값을 여러개 반환`하고 싶을 때
+
+```c#
+class Program
+{
+    static void NextPosition(int x, int y, int vy, out int rx, out int ry)
+    {
+        rx = x + vx;
+        ry = y + vy;
+    }
+
+    static void Main(string[] args)
+    {
+        int x = 0;
+        int y = 0;
+        int vx = 1;
+        int vy = 1;
+
+        NextPosition(x, y, vx, vy, out x, out y);
+    }
+}
+```
+
+<br>
+
+## 구조체
+
+- `간단한 객체`를 만들 때 사용
+- `상속`이 불가능
+- `인터페이스` 구현 불가능
+- `안정성`이 높음
+- 멤버 변수를 별도로 `초기화` 하지 않으면, 해당 멤버 변수 사용 시 오류 발생
+
+```c#
+class Program
+{
+    struct Point
+    {
+        public int x;
+        public int y;
+    }
+
+    static void Main(string[] args)
+    {
+        Point point;
+        point.x = 10;
+        point.y = 10;
+    }
+}
+```
+
+<br>
+
+### 구조체의 생성자
+
+- `매개변수`가 없는 생성자 선언이 불가능(자동으로 정의되기 때문)
+- 이 경우, 해당 자료형의 `기본 값`으로 초기화
+- 매개변수를 다루는 생성자는 다음 제약이 생김
+  - 모든 멤버 `변수를 초기화`된 상태로 만들어 줘야 함
+  - 선언과 동시에 멤버 변수 초기화 불가능
+
+<br>
+
+### 구조체 복사
+
+- 구조체는 `값 복사`가 이루어짐
+
+```c#
+class Program
+{
+    struct PointStruct
+    {
+        public int x;
+        public int y;
+
+        public PointStruct(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    static void Main(string[] args)
+    {
+        PointStruct pointStructA = new PointStruct(10, 20);
+        PointStruct pointStructB = pointStructA;
+
+        pointStructB.x = 100;
+        Console.WriteLint(pointStructA); //10;
+    }
+}
+```
