@@ -775,3 +775,532 @@ class Program
     }
 }
 ```
+
+<br>
+
+# 인터페이스
+
+## 인터페이스 소개
+
+- 특정한 클래스를 만들 때 사용하는 `규약`
+- 보통 `I로 시작`하는 네이밍을 가짐
+- 실체가 없는 규칙이므로 `인스턴스화할 수 없음`
+
+> `IComparable` : 비교가 가능한 자료에 적용
+>
+> `IDisposable` : using 블록을 벗어날 때 Dispose메서드를 자동으로 호출
+
+<br>
+
+## 인터페이스 생성
+
+## 인터페이스 멤버
+
+- 메서드와 속성에 내부 구현을 입력할 수 없음
+- `다중`으로 구현(상속)이 가능
+- 인터페이스를 활용하면 코드에 규약을 부여해 협업 시 `안정성`을 높힐 수 있음
+
+> 다중상속의 경우 부모 클래스 멤버의 이름이 겹치는 모호성이 발생할 수 있음. 이 모호성을 해결하려면 복잡한 내부구조가 필요하게 되고, 언어 전체의 속도가 느려지기 때문에 다중 상속을 대부분 지원하지 않음
+
+```c#
+interface IBasic
+{
+    int TestInstanceMethod(); //메서드에 내부 구현을 입력할 수 없음
+    int TestProperty { get; set; } //속성에 내부 구현을 입력할 수 없음
+}
+
+class TestClass : IBasic
+{
+    public int TestInstanceMethod()
+    {
+
+    }
+
+    public int TestProperty
+    {
+        get
+        {
+
+        }
+
+        set
+        {
+
+        }
+    }
+}
+
+static void Main(string[] args)
+{
+    IBasic basic = new TestClass();
+}
+```
+
+> C#은 `@` 기호를 문자열앞에 붙여 이스케이프 문자를 사용하지 않을 수 있다.
+
+> 한줄씩 쓰고 읽을 땐 StreamWriter, StreamReader를 사용한다.
+
+<br>
+
+# 예외 처리
+
+## 예외와 기본 예외 처리
+
+- 프로그램이 컴파일조차 안 되게 하는 프로그래밍 언어의 문법적인 오류를 `컴파일시점 오류` 또는 `문법 오류`라고 함
+- 예외는 `기본 예외 처리`와 `고급 예외 처리`가 있음
+  - `기본 예외 처리` : 예외가 발생하지 않게 `코드를 사용`하여 사전에 해결
+  - `고급 예외 처리` : `try` `catch` `finally` 사용
+
+<br>
+
+## 고급 예외 처리
+
+- `catch` 또는 `finally`가 필요 없으면, 생략해서 사용 가능
+- 어떠한 상황이 되어도 `finally` 구문은 실행하고 끝난다
+  - 따라서 return과 같이 `중간에 구문을 벗어나는 키워드`는 사용할 수 없음
+
+<br>
+
+## 예외 객체
+
+- 예외 객체는 `catch 구문`의 괄호 안에 들어있는 변수
+
+<br>
+
+## 예외 강제 발생
+
+- 예외를 강제로 발생시킬 때 `throw` 키워드를 사용
+- 원하는 이름의 예외를 만들어 발생시킬 수 있음
+
+```c#
+class CustomException : Exception
+{
+    public CustomException(string message) : base(message)
+    {
+
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        try
+        {
+            throw new CustomException("사용자 예외 정의");
+        }
+        catch (CustomException exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+        finally
+        {
+
+        }
+    }
+}
+```
+
+<br>
+
+# 델리게이터와 람다
+
+- 행위(메소드)를 변수에 저장하고 전달
+
+```c#
+delegate void TestDelegate(); //델리게이터
+TestDelegate testDelegate = <메서드 이름, 무명 델리게이터, 람다>
+```
+
+- 델리게이터는 형식화된 메서드
+
+```c#
+class Program
+{
+    class Product
+    {
+        public string Name { get; set; }
+        public int Price { get; set; }
+    }
+
+    static void Main(string[] args)
+    {
+        List<Product> products = new List<Product>()
+        {
+            new Product() { ... },
+            new Product() { ... },
+            new Product() { ... }
+        };
+
+        product.Sort(SortWithPrice);
+    }
+
+    static int SortWithPrice(Product a, Product b)
+    {
+        return a.Price.CompareTo(b.Price);
+    }
+}
+```
+
+### 무명 델리게이터 기본
+
+```c#
+delegate(<매개변수>, <매개변수>) {
+    /* 코드 */
+    return /* 반환 */;
+}
+```
+
+<사용 예제>
+
+```c#
+class Program
+{
+    class Product
+    {
+        public string Name { get; set; }
+        public int Price { get; set; }
+    }
+
+    static void Main(string[] args)
+    {
+        List<Product> products = new List<Product>()
+        {
+            new Product() { ... },
+            new Product() { ... },
+            new Product() { ... }
+        };
+
+        product.Sort(delegate(Product a, Product b)
+        {
+            return a.Price.CompareTo(b.Price);
+        });
+    }
+}
+```
+
+<br>
+
+### 람다 기본
+
+- 델리게이터를 조금 더 편하게 사용
+
+```c#
+(<매개변수>, <매개변수>) => {
+    /* code */
+    return /* return */;
+}
+
+//혹은
+
+(a, b) => /* return */
+```
+
+사용 예제
+
+```c#
+class Program
+{
+    class Product
+    {
+        public string Name { get; set; }
+        public int Price { get; set; }
+    }
+
+    static void Main(string[] args)
+    {
+        List<Product> products = new List<Product>()
+        {
+            new Product() { ... },
+            new Product() { ... },
+            new Product() { ... }
+        };
+
+        product.Sort((a, b) =>
+        {
+            return a.Price.CompareTo(b.Price);
+        });
+
+        product.Sort((a, b) => a.Price.CompareTo(b.Price));
+    }
+}
+```
+
+> `클로저` : 지역 변수가 메서드가 끝나도 사라지지 않고 남는 현상
+
+<br>
+
+## 델리게이터 선언
+
+- 무명 델리게이터와는 다른 개념
+
+### 델리게이터 형식 지정
+
+- 클래스와 같은 위치 어디에도 선언이 가능
+
+```c#
+[접근 제한자] delegate [반환형] [델리게이터 이름]([매개변수]);
+```
+
+사용 예제
+
+```c#
+class Program
+{
+    public delegate void TestDelegate();
+
+    static void Main(string[] args)
+    {
+        TestDelegate delegateA = TestMethod; //메서드 이름으로 초기화
+        TestDelegate delegateB = delegate() { }; //무명 델리게이터로 초기화
+        TestDelegate delegateC = () => { }; //람다로 초기화
+    }
+
+    static void TestMethod()
+    {
+
+    }
+}
+```
+
+### 델리게이터 활용
+
+- 대표적인 예로 콜백 메서드(매개변수로 전달하는 메서드)
+
+```c#
+public delegate void CustomDelegate();
+
+public void Method(CustomDelegate customDelegate)
+{
+    CustomDelegate();
+}
+```
+
+사용 예제
+
+```c#
+class Student
+{
+    public string Name { get; set; }
+    public double Score { get; set; }
+
+    public Student(string name, double score)
+    {
+        this.Name = name;
+        this.Score = score;
+    }
+
+    public override string ToString()
+    {
+        return this.Name + " : " + this.Score;
+    }
+}
+
+class Students
+{
+    private List<Student> listOfStudent = new List<Student>();
+
+    public delegate void PrintProcess(Student list);
+
+    public void Add(Student studnet)
+    {
+        listOfStudent.Add(studnet);
+    }
+
+    public void Print()
+    {
+        Print((student) =>
+        {
+            Console.WriteLine(student);
+        });
+    }
+
+    public void Print(PrintProcess process) //콜백 메서드
+    {
+        foreach (var item in listOfStudent)
+        {
+            process(item);
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Students student = new Students();
+        Students.Add(new Studnet(...));
+        Students.Add(new Studnet(...));
+
+        students.Print();
+        students.Print((student) =>
+        {
+            Console.WriteLine();
+            Console.WriteLine("이름 : " + student.Name);
+            Console.WriteLine("학점 : " + student.Score);
+        });
+    }
+}
+```
+
+<br>
+
+## 델리게이터 연산
+
+- 델리게이터에 연산자를 적용할 수 있다.
+
+델리게이터 덧셈과 뺄셈
+
+```c#
+class Program
+{
+    public delegate void SendString(string message);
+
+    static void Main(string[] args)
+    {
+        SendString sayHello, sayGoodbye, multiDelegate;
+
+        sayHello = Hello;
+        sayGoodbye = GoodBye;
+
+        multiDelegate = sayHello + sayGoodbye;
+        multiDelegate("윤인성");
+        //두 메서드 모두 호출
+
+        multiDelegate -= sayGoodbye;
+        multiDelegate("윤인성");
+        //Hello에 해당하는 내용만 호출
+    }
+
+    public static void Hello(string message)
+    {
+        Console.WriteLine("안녕하세요. " + message + "씨");
+    }
+
+    public static void GoodBye(string message)
+    {
+        Console.WriteLine("안녕히 가세요. " + message + "씨");
+    }
+}
+```
+
+<br>
+
+## 응용 예제
+
+- Thread의 사용
+
+```c#
+class Program
+{
+    static void Main(string[] args)
+    {
+        Thread threadA = new Thread(TestMethod);
+        Thread threadB = new Thread(delegate()
+        {
+
+        });
+        Thread threadC = new Thread(() =>
+        {
+
+        });
+
+        threadA.Start();
+        threadB.Start();
+        threadC.Start();
+    }
+
+    public static void TestMethod()
+    {
+
+    }
+}
+```
+
+<br>
+
+# Linq
+
+## Linq(Language-Integrated Query) 소개
+
+- 컬렉션 형태의 데이터를 쉽게 다루고자, SQL을 본따 만든 구문
+- from, in, select 키워드는 반드시 포함해야 함
+- 받는 변수로 IEnumerable도 사용 가능하지만, var키워드가 안정적이라 대부분 var를 사용한다
+
+```c#
+List<int> input = new List<int>() {1, 2, 3, 4};
+
+var output = from item in input
+                where item % 2 == 0 //조건식
+                orderby item ascending //정렬(ascending or descending)
+                select item;
+
+var output = from item in input
+                select item * item;
+
+var output = from item in input
+                where (item > 5) && (item % 2 == 0)
+                select item;
+```
+
+<br>
+
+## 익명 객체
+
+- 클래스를 만들지 않아도 객체를 생성
+
+```c#
+new { <속성A> = <값>, <속성B> = <값> };
+```
+
+예제 코드
+
+```c#
+var output = from item in input
+                where item % 2 == 0
+                select new
+                {
+                    A = item * 2,
+                    B = item * item,
+                    C = 100
+                };
+
+Console.WriteLine(itemA);
+Console.WriteLine(itemB);
+Console.WriteLine(itemC);
+```
+
+<br>
+
+## XML과 Linq의 결합
+
+```c#
+static void Main(string[] args)
+{
+    string url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1150061500";
+    XElement xElement = XElement.Load(url);
+    var xmlQuery = from item in xElement.Descendants("data")
+                    select item;
+
+    Console.Write(item.Element("hout").Value);
+
+    var xmlQuery2 = from item in xElement.Descendants("data")
+                    select new
+                    {
+                        Hour = item.Element("hour").Value
+                    };
+
+    var xmlQuery2 = from item in xElement.Descendants("data")
+                    select new Weather()
+                    {
+                        Hour = item.Element("hour").Value
+                    };
+}
+
+class Weather
+{
+    public string Hour{ get; set; }
+}
+```
+
+<br>
