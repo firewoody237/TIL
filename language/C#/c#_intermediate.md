@@ -501,3 +501,82 @@ namespace CSStudy
     }
 }
 ```
+
+<br><br>
+
+# 5. 이벤트 생성, 호출
+
+> 다른 클래스에 값을 넘길 수 있음
+>
+> `이벤트 게시자(Publisher)`와 `이벤트 구독자(Subscriber)`로 구분된다.
+> 
+> `Form 간`, `Class 간`, `Class <-> dll` 값 전달
+
+**예제**
+```c#
+/*
+Form1.cs
+*/
+
+namespace CSStudy
+{
+
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Form2 form = new Form2();
+            form.MyFirst += Sum;
+            form.Show();
+        }
+
+        private void Sum(int a)
+        {
+            label1.Text = a.ToString();
+            MessageBox.Show("" + a);
+        }
+    }
+}
+
+
+/*
+Form2.cs
+*/
+
+namespace CSStudy
+{
+    public partial class Form2 : Form
+    {
+
+        public delegate void OnMyFirstHandler(int a);
+        public event OnMyFirstHandler MyFirst;
+
+        Thread thread = null;
+
+        public Form2()
+        {
+            InitializeComponent();
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            thread = new Thread(new ThreadStart(MyTest));
+            thread.IsBackground = true;
+            thread.Start();
+        }
+
+        private void MyTest()
+        {
+            MyFirst(5);
+        }
+    }
+}
+
+```
+
