@@ -580,3 +580,77 @@ namespace CSStudy
 
 ```
 
+<br><br>
+
+# 6. Timer
+
+**타이머 종류**
+1. **`System.Windows.Forms.Timer`**
+   1. `UI Thread`에서 동작
+   2. `간단한 작업`이나 `UI작업` 시 사용
+2. **`System.Timers.Timer`**
+   1. `Event` 방식
+   2. `UI Thread와 별개`의 쓰레드에서 작업(화면과 별개로 오래걸리는 작업에 유리)
+   3. `예외`가 발생할 때 표출이 안됨
+3. **`System.Threading.Timer`**
+   1. `Thread Pool`의 쓰레드에서 `callback` 메소드 실행
+   2. `UI Thread와 별개`의 쓰레드에서 작업(화면과 별개로 오래걸리는 작업에 유리)
+   3. `예외` 발생 시 제대로 표출이 됨
+
+<br>
+
+**예제**
+```c#
+namespace CSStudy2
+{
+    public partial class Form1 : Form
+    {
+        private System.Timers.Timer timer;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        //1. System.Windows.Forms.Timer
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            //다른 스레드면 크로스 스레드 에러가 발생
+            //발생하지 않음 -> 같은 스레드(UIThread)
+            label1.Text += "Changed";
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //1. System.Windows.Forms.Timer
+            timer = new System.Timers.Timer(2000);
+            timer.Elapsed += OnTime; //이벤트 등록
+            timer.Enabled = true;
+            timer.AutoReset = true; //반복 발생
+
+            //3. System.Threading.Timer
+            int value = 5;
+            System.Threading.Timer t_timer = new System.Threading.Timer(new TimerCallback(TimerWork), value, 1000, 3000);
+            //처음시간 1000, 반복 3000마다
+        }
+
+        //2. System.Timers.Timer timer
+        private void OnTime(object sender, ElapsedEventArgs e)
+        {
+            label1.Text = "aa"; //크로스 스레드 에러 발생
+            MessageBox.Show("!!");
+        }
+
+        //3. System.Threading.Timer
+        private void TimerWork(object state)
+        {
+            int c = (int)state;
+            MessageBox.Show(c.ToString());
+            throw new Exception("aa");
+        }
+    }
+}
+```
+
+<br><br>
+
