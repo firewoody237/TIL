@@ -654,3 +654,131 @@ namespace CSStudy2
 
 <br><br>
 
+# 7. 시리얼 통신
+
+* `RC232`규격을 사용하는 시리얼 케이블을 통한 통신
+* `RX` - data Receive
+* `TX` - data Transmit
+* 종류 : 크로스 케이블 / 다이렉트 케이블
+* `STX + 보낼문자 + ETX`의 형태를 가짐
+
+<br>
+
+**예제**
+```c#
+namespace serial
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private SerialPort sp = null;
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            sp = new SerialPort();
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            if(sp.IsOpen)
+            {
+                sp.Close();
+                MessageBox.Show("열려있던 포트를 닫습니다.");
+            }
+            else
+            {
+                sp.Close();
+                sp.PortName = textBox1.Text;
+                sp.BaudRate = int.Parse(textBox2.Text);
+                sp.DataBits = 8;
+                sp.Parity = Parity.None;
+                sp.StopBits = StopBits.One;
+                sp.Encoding = Encoding.ASCII;
+                sp.ErrorReceived += new SerialErrorReceivedEventHandler(ErrorReceived);
+                sp.DataReceived += new SerialDataReceivedEventHandler(DataReceived);
+                sp.Open();
+            }
+        }
+
+        private void DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            this.BeginInvoke(new Action(() =>
+            {
+                string msg = sp.ReadExisting();
+                richTextBox2.Text += msg + "\r\n";
+            }));
+        }
+
+        private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        {
+            string msg = sp.ReadExisting();
+            richTextBox2.Text += (msg + "\r\n");
+        }
+
+        private void btnSend_Click(object sender, EventArgs e)
+        {
+            char stx, etx;
+            stx = Convert.ToChar(0x02);
+            etx = Convert.ToChar(0x03);
+            sp.Write(stx + richTextBox1.Text + etx);
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            if(sp.IsOpen)
+            {
+                sp.Close();
+                MessageBox.Show("닫습니다.");
+            }
+            else
+            {
+                MessageBox.Show("이미 닫혀있습니다.");
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (sp.IsOpen)
+            {
+                sp.Close();
+                MessageBox.Show("닫습니다.");
+            }
+            else
+            {
+                MessageBox.Show("이미 닫혀있습니다.");
+            }
+        }
+    }
+}
+```
+
+<br><br>
+
+# 8. 프로토콜
+
+* 수신측과 송신측의 통신규약
+* 웹서버와는 HTTP 프로토콜
+
+<br><br>
+
+# 9. C# exe와 dll의 소스코드, 디자인 얻는 방법(디컴파일)
+
+* 소유자 동의와 라이센스 디컴파일 금지조항이 있는지 확인 필요
+
+1. 참조관리자에 해당 exe파일 넣기
+2. 도구 > 옵션 > 텍스트 집기 > C# > 고급 > [] 디컴파일된 소스에 탐색을 사용하도록 설정 체크
+3. 소스확인
+
+<br><br>
+
+# 10. 환경설정
+
+* Form_Load시 환경 설정파일(ini)을 불러옴
+1. 속도 개선
+2. 오류예방
+3. 관리목적
+4. 사용자 편리성
