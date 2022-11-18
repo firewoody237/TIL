@@ -391,3 +391,63 @@ namespace TCPServer
     }
 }
 ```
+
+<br>
+
+## UDP
+* 3-hand shaking을 사용하지 않으므로 빠르나, 신뢰성이 없음
+
+**Server**
+```c#
+namespace UDPConnection
+{
+    internal class UDPServer
+    {
+        UdpClient udpClient = new UdpClient(12345);
+
+        IPEndPoint remoteEndPoint = null; //클라이언트 정보
+
+        
+        public void Run()
+        {
+            while(true)
+            {
+                byte[] bytes = udpClient.Receive(ref remoteEndPoint); 
+                Console.WriteLine("송신자" + remoteEndPoint.ToString()+"."+Encoding.UTF8.GetString(bytes));
+
+                udpClient.Send(bytes, bytes.Length, remoteEndPoint); //서버쪽에서 보내게 됨
+                Console.WriteLine("송신내용:" + Encoding.UTF8.GetString(bytes));
+
+            }
+        }
+    }
+}
+```
+
+<br>
+
+**Client**
+```c#
+namespace UDPClient
+{
+    internal class UDPClient
+    {
+        //클라이언트 클래스
+        public void Run()
+        {
+            UdpClient udpClient = new UdpClient();
+
+            string message = "Hello World";
+
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
+            udpClient.Send(bytes, bytes.Length, "127.0.0.1", 12345);
+
+            IPEndPoint remoteEndPoint = null;
+            byte[] receives = udpClient.Receive(ref remoteEndPoint);
+            Console.WriteLine("서버" + remoteEndPoint.ToString() + ", 서버로부터 수신내용: " + Encoding.UTF8.GetString(receives));
+
+            udpClient.Close();
+        }
+    }
+}
+```
