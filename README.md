@@ -5,7 +5,7 @@ Today I Leaned
 
 (진행 중) [좋은코드 나쁜코드](https://github.com/firewoody237/TIL/tree/main/Good_Developer/Code%20Quality/%EC%A2%8B%EC%9D%80%EC%BD%94%EB%93%9C_%EB%82%98%EC%81%9C%EC%BD%94%EB%93%9C)
 
-(진행 중) [객제지향 프로그래밍](https://github.com/firewoody237/TIL/tree/main/Good_Developer/OOP/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5_%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D)
+(완료) [객제지향 프로그래밍](https://github.com/firewoody237/TIL/tree/main/Good_Developer/OOP/%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5_%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D)
 
 (진행 중) [이펙티브 C#](https://github.com/firewoody237/TIL/tree/main/CSharp/language/%EC%9D%B4%ED%8E%99%ED%8B%B0%EB%B8%8C%20CSharp)
 
