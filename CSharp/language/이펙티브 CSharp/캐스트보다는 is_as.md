@@ -1,0 +1,126 @@
+# Item 3. 캐스트보다는 is, as가 좋다.
+
+- `C#`은 정적 타이핑을 수행하기 때문에, 타입 불일치가 발생해도 컴파일러가 이를 걸러준다.
+- 하지만 가끔 `object`로 인해 런타임에 타입을 확인해야 할 때도 있다.
+- 형 변환을 수행하는 경우, 캐스팅 보다는 `as` 연산자를 사용하는 것이 좋다.
+  - 더 안전하다.
+  - 런타임에 더 효율적으로 동작한다.
+- 다만 `as`나 `is`는 사용자 정의 형변환은 수행되지 않으므로, 런타임에 객체의 타입이 변환하려는 타입과 정확히 일치할 경우에만 형변환이 성공적으로 수행된다.
+
+```c#
+object o = Factory.GetObject();
+
+MyType t = o as MyType;
+if (t != null)
+{
+
+}
+else
+{
+
+}
+```
+
+- `as`는 형 번환을 수행할 수 없거나, null을 대상으로 형변환을 수행하는 경우 null을 반환한다.
+- 캐스팅을 사용하면 예외처리 코드와 null 확인 코드가 모두 필요하지만, `as` 연산자를 사용하면 null 확인 코드만 있으면 된다.
+- `as`나 `is` 연산자는 런타임에 객체의 타입을 확인하고 필요에 따라 박싱을 수행하는 것을 제외하고는 어떠한 작업도 수행하지 않는다.
+- 캐스팅을 사용하는 경우, 객체를 지정한 타입으로 변환하기 위해서 형변환 연산자가 개입될 수 있다.(ex. long을 short으로 바꾸면 데이터 유실이 발생할 수 있음.)
+
+```c#
+public class SecondType
+{
+    private MyType _value;
+
+    // 형 변환 연산자
+    // SecondType을 MyType 타입으로 변환한다.
+    public static implicit operator MyType(SecondType t)
+    {
+        return t._value;
+    }
+}
+```
+
+```c#
+// o는 SecondType
+object o = Factory.GetObject();
+
+// (1)
+MyType t = o as MyType; // o가 MyType이 아니면 실패
+
+try 
+{
+    // (2)
+    MyType t1;
+    t1 = (MyType)o; // o가 MyType이 아니면 실패
+}
+...
+```
+
+- 컴파일러는 단순히 컴파일 타임에 객체가 어떤 타입으로 선언됐는지만 추적하기 때문에 (2)도 실패한다.
+- 컴파일러는 런타임에 객체가 어떤 타입일지 예측 하지 못한다.
+  - 따라서 컴파일러는 객체 o가 `object` 타입이라고 생각하고, `object` 타입을 `MyType`으로 형변환할 수 있는 연산자가 정의됐는지만을 확인한다.
+  - 형변환 연산자가 없으므로, 컴파일러는 o 객체가 `MyType` 형식인지를 확인하는 코드만 생성한다.
+  - 런타임에 o는 `SecondType` 형식의 객체이므로 형변환에 실패한다.
+- 사용자 정의 형변환 연산자는 객체의 런타임 타입이 아닌 컴파일타임 타입에 맞춰 수행된다.
+
+- `t = (MyType)st;`는 `st`가 어떤 타입으로 선언되었느냐에 따라 다르게 동작할 수 있다.
+- `t = st as MyType;`은 `st`가 어떤 타입으로 선언되었든 항상 동일한 결과를 반환한다.(일관성이 높다.)
+
+```c#
+object o = Factory.GetValue();
+int i = o as int;
+// int는 값 타입이고 null이 되기 때문에 컴파일 되지 않는다.
+
+object o = Factory.GetValue();
+var i = o as int?;
+if (i != null)
+    Console.WriteLog(i.Value);
+//위 코드처럼 쓰는 것이 낫다.
+```
+
+- `foreach`문은 캐스팅을 통해서 루프에서 사용되는 타입으로 객체를 형변환한다.
+```c#
+public void UseCollection(IEnumerable theCollection)
+{
+    foreach (MyType t in theCollection)
+    {
+        t.DoStuff();
+    }
+}
+```
+
+```c#
+public void UseCollection(IEnumerable theCollection)
+{
+    IEnumerator it = theCollection.GetEnumertor();
+    while (it.MoveNext())
+    {
+        MyType t = (MyType)it.Current;
+        t.DoStuff();
+    }
+}
+```
+
+- `foreach`문장은 컬렉션 내부의 객체가 런타임에 어떤 타입인지, 그 타입을 루프 변수 타입으로 형변환 가능한지 등을 확인하지 않는다.
+  - 단지 `IEnumerator.Current`의 반환형인 `System.Object` 타입으로 형변환 가능한지와, `Object` 타입의 객체를 다시 루프 타입으로 형변환 가능한지만을 확인한다.
+- `GetType()`은 런타임에 객체의 타입을 정확히 가져오기 때문에, `is`나 `as` 보다 훨씬 더 엄격하게 테스트를 수행해야 하는 경우 주로 사용된다.
+
+```c#
+IEnumerable collection = new List<int>() { 1,2,3,4,5,6,7,8};
+
+var small = from int item in collection
+            where item < 5
+            select item;
+
+var small2 = collection.Cast<int>().Where(item => item < 5).Select(n => n);
+```
+
+- 위 `small`과 `small2`는 동일하게 동작한다.(모두 `Cast<T>`를 사용)
+- 따라서 `Cast<T>`의 타입 매개변수에 사용자 정의 타입을 전달하는 경우 캐스트 연산으로 형변환을 수행해도 문제가 없을지 살펴보고, 필요에 따라 사용자 정의 타입에 제약 조건을 추가할 것인지에 대해서도 검토해야 한다.
+- `C#` 4.0 부터는 `dynamic`, 런타임 타입확인 기능이 추가됨에 따라 타입 시스템이 더욱 풍성하게 변경됐다.
+
+### 정리
+
+- 가급적 형변환을 피하는 것이 좋지만, 사용해야 한다면 사용자의 의도를 명확히 표현할 수 있는 `is`와 `as`를 사용하는 것이 좋다.
+- 형변환을 위해 다양한 방법을 사용할 수 있지만 그 각각이 서로 다르게 동작한다는 점에 유념해야 한다.
+- `is`와 `as` 연산자는 거의 항상 예상대로 동작하며 대상 객체를 올바르게 형변환할 수 있을 경우에만 성공한다.(캐스트보다 부작용이 적다.)
